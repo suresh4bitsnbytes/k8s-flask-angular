@@ -2,11 +2,44 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.3.4.
 
-## installation - ubuntu
+## Installation - Ubuntu
 ```sh
 
 curl -sL https://deb.nodesource.com/setup_16.x | sudo bash -
 sudo apt -y install nodejs
+npm install -g @angular/cli
+```
+
+## .dockerignore
+Add directories and files which are not required for docker image creation.
+e.g node_modules, .vscode, README.md, etc.
+
+## Generate angular production build and create an image
+### Dockerfile
+```sh
+#stage 1
+FROM node:16.15 as build
+WORKDIR /app
+COPY package.json /app
+RUN npm install
+COPY . /app
+RUN npm run build --prod
+
+#stage 2
+FROM nginx:alpine
+COPY --from=build /app/dist/frontend /usr/share/nginx/html
+```
+
+### Create doker build
+```sh
+# cd frontend
+docker build -t <image-name>:tag .
+```
+
+### Run docker container
+```sh
+# cd frontend
+docker run -d -p 8080:80 --name <container-name> <image-name>:<tag>
 ```
 
 ## Development server
